@@ -1,0 +1,18 @@
+{
+  "name": "magma",
+  "version": "0.1.0",
+  "description": "A AMQP-powered scalable back end framework.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Hydrais <hello@hydrais.com>",
+  "license": "Closed Source",
+  "dependencies": {
+    "amqp": "^0.2.4",
+    "body-parser": "^1.12.4",
+    "express": "^4.12.3",
+    "merge": "^1.2.0",
+    "node-uuid": "^1.4.3"
+  }
+}
