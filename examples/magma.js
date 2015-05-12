@@ -5,7 +5,7 @@
 // -- ROUTER
 // -- Routes incoming HTTP requests to a series of workers via RabbitMQ
 
-var magma  = require("./index");
+var magma  = require("../index");
 var router = magma.router();
 
 router.connect(function () {
