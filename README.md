@@ -24,7 +24,7 @@ router.connect(function () {
 var server = router.listen(3000, function () {
   var host = server.address().address;
   var port = server.address().port;
-  
+
   console.log('Listening at http://%s:%s', host, port);
 });
 ```
@@ -57,15 +57,15 @@ worker.connect(function () {
       var articleId = req.data.id;                // Access data using `req.data`
       var authHeader = req.headers.authorization; // Access headers using `req.headers`
     };
-    
+
     this.read = function (req, res) {
       res.success('good job!'); // Send successful responses using `res.success`
     };
-    
+
     this.update = function (req, res) {
       res.fail('something went wrong!'); // Send failure responses using `res.fail`.
     };
-    
+
     this.delete = function (req, res) {
       // And so on...
     };
@@ -76,3 +76,77 @@ worker.connect(function () {
 When binding a Worker to a Resource, you must implement the `create`, `read`, `update`, and `delete` methods for that resource. These methods are automatically invoked corresponding to the `POST`, `GET`, `PUT`, and `DELETE` HTTP requests from the Router.
 
 You can access request data using the `req.data` object. Query string data as well as POSTed body data will be combined into this key value array.
+
+### Remote Procedure Calling
+
+Traditionally it's best to stick with REST-ful API endpoints, which the default
+router/worker system provides. However, occasionally you need to divert from
+that path, which is where Magma's RPC feature comes in.
+
+#### The Router
+
+Start by declaring a router with a custom resource...
+
+```js
+var magma  = require('magma');
+var router = magma.router();
+
+router.connect(function () {
+  router.resource('network', [
+    'customAction:get'
+  ]);
+});
+
+var server = router.listen(3000, funciton () {
+  // ...
+});
+```
+
+By including a second parameter to the `resource` method, we have declared a
+new endpoint on the `network` resource called `customAction`. Because we suffixed
+the endpoint with `:get`, you will be able to access the custom endpoint like so:
+
+```
+GET http://.../network/customAction
+```
+
+In addition to the `:get` suffix, you can use `:put`, `:post`, and `:delete` for
+`PUT`, `POST`, and `DELETE` request respectively. You **must** include a suffix,
+there is no default.
+
+#### The Worker
+
+Now that you have a router defined with your `customAction` endpoint declared,
+creating a worker is pretty much business as usual except for one thing: in
+addition to defining your worker's `create`, `read`, `update`, and `delete`
+methods, you will also define a `customAction` method. The `customAction` will
+behave in the same way as the other CRUD methods.
+
+```js
+var magma  = require('magma');
+var worker = magma.worker();
+
+worker.connect(function () {
+  worker.resource('network', function () {
+    this.customAction = function (req, res) {
+      res.success('customAction');
+    };
+
+    this.create = function (req, res) {
+      res.success('create');
+    };
+
+    this.read = function (req, res) {
+      res.success('read');
+    };
+
+    this.update = function (req, res) {
+      res.success('update');
+    };
+
+    this.delete = function (req, res) {
+      res.success('delete');
+    };
+  });
+});
+```
